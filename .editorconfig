@@ -1,0 +1,28 @@
+# Top-level EditorConfig file for LiteMon
+root = true
+
+# Default settings for all files
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# Indentation: Python, JSON, YAML, TOML, etc.
+[*.{py,json,yml,yaml,toml}]
+indent_style = space
+indent_size = 4
+
+# Markdown & text files — keep trailing whitespace (needed sometimes)
+[*.{md,txt}]
+trim_trailing_whitespace = false
+insert_final_newline = true
+
+# Makefile — tabs are required
+[Makefile]
+indent_style = tab
+
+# Config files (INI-style, e.g. pytest.ini)
+[*.ini]
+indent_style = space
+indent_size = 4
