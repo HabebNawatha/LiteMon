@@ -34,3 +34,7 @@ clean:
 
 ## Run everything: format, lint, tests, and coverage
 check: format lint test coverage
+
+## Run basic demo example of litemon
+example:
+	python examples/basic_demo.py
