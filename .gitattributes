@@ -1,0 +1,17 @@
+# -----------------------------------------------------------------------------
+# Handle line endings automatically
+# -----------------------------------------------------------------------------
+* text=auto eol=lf
+
+# -----------------------------------------------------------------------------
+# Make GitHub linguist detect Python as the main language
+# -----------------------------------------------------------------------------
+*.py linguist-language=Python
+
+# -----------------------------------------------------------------------------
+# Improve diff readability for common file types
+# -----------------------------------------------------------------------------
+*.json linguist-detectable=true diff=json
+*.toml linguist-detectable=true diff=toml
+*.yml linguist-detectable=true diff=yaml
+*.yaml linguist-detectable=true diff=yaml
