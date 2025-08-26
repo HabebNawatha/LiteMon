@@ -1,33 +1,38 @@
-import time
-from litemon import monitor, start_dashboard
-import litemon
+from flask import Flask
+from litemon import monitor, configure_client
 
-# Start the dashboard in the background
-start_dashboard(port=8000)
 
-@monitor
-def greet(name: str):
-    """Simulate greeting with a small delay"""
-    time.sleep(0.1)
-    return f"Hello, {name}"
+app = Flask(__name__)
+
+configure_client(server_url="http://127.0.0.1:8000", push_interval=2)
 
 @monitor
-def risky_div(a: int, b:int):
-    """Simulate a division function with occasionl errors"""
-    return a / b
+def greet():
+    print("Hello! Welcome to the server.")
+    return "Hello! Welcome to the server."
 
-if __name__ == "__main__":
-    print(litemon.__file__)
-    for i in range(0,5):
-        greet("litemon")
-        try:
-            risky_div(10, i % 3)
-        except ZeroDivisionError:
-            pass
-    print("📊 Visit http://127.0.0.1:8000/metrics to see live LiteMon stats")
+@monitor
+def bye():
+    print("Goodbye! See you soon.")
+    return "Goodbye! See you soon."
 
-    try:
-        while True:
-            time.sleep(1)
-    except KeyboardInterrupt:
-        print("\n👋 LiteMon dashboard stopped")
+@monitor
+def divide():
+    print("dividing by 0")
+    return 3/0
+
+@app.route('/greet', methods=['GET'])
+def greet_route():
+    return greet()
+
+@app.route('/bye', methods=['GET'])
+def bye_route():
+    return bye()
+
+@app.route('/divide', methods=["GET"])
+def divide_route():
+    return divide()
+
+if __name__ == '__main__':
+    # Start LiteMon client (push metrics every 3s)
+    app.run(debug=True, port=5050)

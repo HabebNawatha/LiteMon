@@ -20,6 +20,9 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules"
 ]
 
+[project.scripts]
+litemon = "litemon.server.__main__:main"
+
 [tool.setuptools.packages.find]
 where = ["src"]
 
@@ -32,5 +35,6 @@ dev = [
     "pytest",
     "pytest-cov",
     "requests",
-    "ruff"
+    "ruff",
+    "flask"
 ]
