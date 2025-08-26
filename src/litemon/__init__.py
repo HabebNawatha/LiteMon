@@ -1,4 +1,4 @@
-from .monitor import monitor
-from .dashboard import start_dashboard
+from .client.monitor import monitor
+from .client.client import configure_client, stop_client, push_metrics
 
-__all__ = ["monitor", "start_dashboard"]
+__all__ = ["monitor", "configure_client", "stop_client", "push_metrics"]

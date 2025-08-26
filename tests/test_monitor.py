@@ -1,11 +1,10 @@
 from unittest.mock import patch
 import pytest
-from litemon.metrics import reset_metrics, get_metrics
-from litemon.monitor import monitor
+from litemon.client.metrics_buffer import reset_metrics, get_metrics
+from litemon.client.monitor import monitor
 
 
 def test_monitor_successful_function():
-    """Ensure that the monitor decorator tracks successful calls."""
     reset_metrics()
 
     @monitor
@@ -19,11 +18,10 @@ def test_monitor_successful_function():
     assert metrics["calls"] == 1
     assert metrics["success"] == 1
     assert metrics["failures"] == 0
-    assert metrics["avg_time"] >= 0  # Execution time should be recorded
+    assert metrics["avg_time"] >= 0
 
 
 def test_monitor_failed_function():
-    """Ensure that exceptions are recorded as failures but still raised."""
     reset_metrics()
 
     @monitor
@@ -57,7 +55,6 @@ def test_monitor_multiple_calls_and_durations():
 
 
 def test_monitor_multiple_functions():
-    """Ensure that metrics are tracked separately for multiple monitored functions."""
     reset_metrics()
 
     @monitor
@@ -78,7 +75,6 @@ def test_monitor_multiple_functions():
 
 
 def test_monitor_preserves_function_metadata():
-    """Ensure the monitor decorator preserves the original function name and docstring."""
     reset_metrics()
 
     @monitor
