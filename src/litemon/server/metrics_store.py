@@ -13,16 +13,18 @@ def store_metrics(new_metrics: Dict[str, Dict[str, Any]]):
                 _metrics_store[func] = stats
             else:
                 existing = _metrics_store[func]
+
+                existing_total_time = existing["avg_time"] * existing["calls"]
+                incoming_total_time = stats["avg_time"] * stats["calls"]
+
                 existing["calls"] += stats.get("calls", 0)
                 existing["success"] += stats.get("success", 0)
                 existing["failures"] += stats.get("failures", 0)
 
                 if stats.get("calls", 0) > 0:
-                    total_time = (
-                        existing["avg_time"] * existing["calls"]
-                        + stats["avg_time"] * stats["calls"]
-                    )
-                    existing["avg_time"] = total_time / existing["calls"]
+                    existing["avg_time"] = (
+                        existing_total_time + incoming_total_time
+                    ) / existing["calls"]
 
 
 def get_all_metrics() -> Dict[str, Dict[str, Any]]:

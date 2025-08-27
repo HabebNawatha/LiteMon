@@ -39,5 +39,7 @@ dev = [
     "pytest-cov",
     "requests",
     "ruff",
-    "flask"
+    "flask",
+    "fastapi",
+    "uvicorn"
 ]
