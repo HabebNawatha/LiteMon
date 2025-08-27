@@ -1,3 +1,4 @@
+import time
 from flask import Flask
 from litemon import monitor, configure_client
 
@@ -8,11 +9,13 @@ configure_client(server_url="http://127.0.0.1:8000", push_interval=2)
 
 @monitor
 def greet():
+    time.sleep(1)
     print("Hello! Welcome to the server.")
     return "Hello! Welcome to the server."
 
 @monitor
 def bye():
+    time.sleep(2)
     print("Goodbye! See you soon.")
     return "Goodbye! See you soon."
 
