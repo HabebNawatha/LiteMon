@@ -15,10 +15,10 @@ It comes with a metrics server live dashboard where you can visualize and analyz
 
 ## Installation 🔧
 
-Install LiteMon directly from GitHub:
+Install LiteMon:
 
 ```bash
-pip install git+https://github.com/HabebNawatha/LiteMon.git
+pip install litemon
 ```
 
 Or, if you’re contributing locally:
