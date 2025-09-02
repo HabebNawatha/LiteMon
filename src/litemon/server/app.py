@@ -2,6 +2,7 @@ import json
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import urlparse
 from .metrics_store import store_metrics, get_all_metrics, reset_metrics
+from .error_store import store_errors, get_all_errors, reset_errors
 
 
 class LiteMonHandler(BaseHTTPRequestHandler):
@@ -15,6 +16,10 @@ class LiteMonHandler(BaseHTTPRequestHandler):
         parsed = urlparse(self.path)
         if parsed.path == "/metrics":
             self._send_json(get_all_metrics())
+
+        elif parsed.path == "/errors":
+            self._send_json(get_all_errors())
+
         else:
             self._send_json({"error": "Not found"}, status=404)
 
@@ -24,6 +29,10 @@ class LiteMonHandler(BaseHTTPRequestHandler):
         if parsed.path == "/reset":
             reset_metrics()
             return self._send_json({"status": "reset"})
+
+        elif parsed.path == "/errors/reset":
+            reset_errors()
+            return self._send_json({"status": "errors reset"})
 
         length = int(self.headers.get("Content-Length", 0))
         body = self.rfile.read(length).decode()
@@ -35,7 +44,13 @@ class LiteMonHandler(BaseHTTPRequestHandler):
         if parsed.path == "/push":
             if not isinstance(data, dict):
                 return self._send_json({"error": "Expected metrics dict"}, status=400)
-            store_metrics(data)
+
+            if "metrics" in data:
+                store_metrics(data["metrics"])
+            
+            if "errors" in data:
+                store_errors(data["errors"])
+            
             self._send_json({"status": "ok"})
         else:
             self._send_json({"error": "Not found"}, status=404)
