@@ -3,6 +3,7 @@ import time
 import requests
 from typing import Optional
 from .metrics_buffer import fetch_and_clear
+from .errors_buffer import fetch_and_clear_errors
 
 # Default LiteMon server URL — users can override via start_client()
 _server_url: Optional[str] = None
@@ -16,16 +17,16 @@ def push_metrics():
     Immediately pushes any buffered metrics to the LiteMon server.
     Useful for tests or manual flushes.
     """
-    metrics = fetch_and_clear()
-    if not metrics or not _server_url:
+    payload = collect_payload()
+    if (payload["metrics"] or payload["errors"]) and _server_url:
         return
 
     try:
-        res = requests.post(f"{_server_url}/push", json=metrics, timeout=2)
+        res = requests.post(f"{_server_url}/push", json=payload, timeout=2)
         if res.status_code != 200:
-            print(f"⚠️ LiteMon: Failed to push metrics ({res.status_code})")
+            print(f"⚠️ LiteMon: Failed to push payload data ({res.status_code})")
     except requests.RequestException as e:
-        print(f"⚠️ LiteMon: Error pushing metrics: {e}")
+        print(f"⚠️ LiteMon: Error pushing payload data: {e}")
 
 
 def _push_metrics_periodically():
@@ -35,15 +36,28 @@ def _push_metrics_periodically():
     global _server_url
 
     while not _stop_event.is_set():
-        metrics = fetch_and_clear()
-        if metrics and _server_url:
+        payload = collect_payload()
+        if (payload["metrics"] or payload["errors"]) and _server_url:
             try:
-                res = requests.post(f"{_server_url}/push", json=metrics, timeout=2)
+                res = requests.post(f"{_server_url}/push", json=payload, timeout=2)
                 if res.status_code != 200:
-                    print(f"⚠️ LiteMon: Failed to push metrics ({res.status_code})")
+                    print(f"⚠️ LiteMon: Failed to push payload data ({res.status_code})")
             except requests.RequestException as e:
-                print(f"⚠️ LiteMon: Error pushing metrics: {e}")
+                print(f"⚠️ LiteMon: Error pushing payload data: {e}")
         time.sleep(_push_interval or 5)
+
+
+def collect_payload():
+    """
+    Collects both metrics and error logs into a single payload for the server.
+
+    Returns:
+        dict: {"metrics": ... , "errors": ... }
+    """
+    return {
+        "metrics": fetch_and_clear,
+        "errors": fetch_and_clear_errors
+    }
 
 
 def configure_client(server_url: str = "http://127.0.0.1:6400", push_interval: int = 5):

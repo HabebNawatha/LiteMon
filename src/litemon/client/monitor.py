@@ -2,6 +2,7 @@ import time
 import functools
 import inspect
 from .metrics_buffer import record_call
+from .errors_buffer import record_error
 
 
 def monitor(func):
@@ -15,8 +16,9 @@ def monitor(func):
             success = True
             try:
                 return await func(*args, **kwargs)
-            except Exception:
+            except Exception as e:
                 success = False
+                record_error(func.__name__, type(e).__name__)
                 raise
             finally:
                 duration = time.perf_counter() - start
@@ -32,8 +34,9 @@ def monitor(func):
             success = True
             try:
                 return func(*args, **kwargs)
-            except Exception:
+            except Exception as e:
                 success = False
+                record_error(func.__name__, type(e).__name__)
                 raise
             finally:
                 duration = time.perf_counter() - start
