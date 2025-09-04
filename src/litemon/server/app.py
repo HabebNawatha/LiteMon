@@ -47,10 +47,10 @@ class LiteMonHandler(BaseHTTPRequestHandler):
 
             if "metrics" in data:
                 store_metrics(data["metrics"])
-            
+
             if "errors" in data:
                 store_errors(data["errors"])
-            
+
             self._send_json({"status": "ok"})
         else:
             self._send_json({"error": "Not found"}, status=404)
