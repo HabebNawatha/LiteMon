@@ -18,7 +18,7 @@ def push_metrics():
     Useful for tests or manual flushes.
     """
     payload = collect_payload()
-    if (payload["metrics"] or payload["errors"]) and _server_url:
+    if not (payload["metrics"] or payload["errors"]) or not _server_url:
         return
 
     try:
@@ -54,10 +54,7 @@ def collect_payload():
     Returns:
         dict: {"metrics": ... , "errors": ... }
     """
-    return {
-        "metrics": fetch_and_clear,
-        "errors": fetch_and_clear_errors
-    }
+    return {"metrics": fetch_and_clear(), "errors": fetch_and_clear_errors()}
 
 
 def configure_client(server_url: str = "http://127.0.0.1:6400", push_interval: int = 5):

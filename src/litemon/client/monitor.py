@@ -18,7 +18,7 @@ def monitor(func):
                 return await func(*args, **kwargs)
             except Exception as e:
                 success = False
-                record_error(func.__name__, type(e).__name__)
+                record_error(func.__name__, type(e).__name__, args=args, kwargs=kwargs)
                 raise
             finally:
                 duration = time.perf_counter() - start
@@ -36,7 +36,7 @@ def monitor(func):
                 return func(*args, **kwargs)
             except Exception as e:
                 success = False
-                record_error(func.__name__, type(e).__name__)
+                record_error(func.__name__, type(e).__name__, args=args, kwargs=kwargs)
                 raise
             finally:
                 duration = time.perf_counter() - start

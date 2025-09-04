@@ -2,23 +2,27 @@ import time
 from threading import Lock
 from typing import Dict, Any, List
 
-_errors_buffer = Dict[str, Dict[str, Any]] = {}
+_errors_buffer: Dict[str, Dict[str, Any]] = {}
 _lock = Lock()
 MAX_ERRORS = 10
 
 
-def record_error(func_name: str, error_type: str) -> None:
+def record_error(func_name: str, error_type: str, args=None, kwargs=None) -> None:
     """
     Records an error event in the local client-side error buffer.
 
     Args:
         func_name (str): Nameof the monitored function.
         error_type (str): Type or class name of the error.
+        args (list): Positional arguments passed to the function.
+        kwargs (dict): Keyword arguments passed to the function.
     """
-    entry = {
-        "error": error_type,
-        "timestamp": time.time()
-    }
+    entry = {"error": error_type, "timestamp": time.time()}
+
+    if args:
+        entry["args"] = args
+    if kwargs:
+        entry["kwargs"] = kwargs
 
     with _lock:
         if func_name not in _errors_buffer:
@@ -29,7 +33,7 @@ def record_error(func_name: str, error_type: str) -> None:
         _errors_buffer[func_name] = _errors_buffer[func_name][-MAX_ERRORS:]
 
 
-def get_errors() -> Dict[str, Dict[str,Any]]:
+def get_errors() -> Dict[str, Dict[str, Any]]:
     """
     Returns a snapshot of the current errors buffer.
 
@@ -49,7 +53,7 @@ def reset_errors() -> None:
         _errors_buffer.clear()
 
 
-def fetch_and_clear_errors() -> Dict[str, List[Dict[str,Any]]]:
+def fetch_and_clear_errors() -> Dict[str, List[Dict[str, Any]]]:
     """
     Fetches all collected errors and clears the local buffer.
     Used by the client to push errors to the LiteMon server.
@@ -59,6 +63,6 @@ def fetch_and_clear_errors() -> Dict[str, List[Dict[str,Any]]]:
     """
     global _errors_buffer
     with _lock:
-        snapshot = dict(_errors_buffer) # Copy current errors
-        _errors_buffer.clear() # Reset buffer after fetching
+        snapshot = dict(_errors_buffer)  # Copy current errors
+        _errors_buffer.clear()  # Reset buffer after fetching
         return snapshot
