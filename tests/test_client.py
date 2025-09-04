@@ -1,5 +1,6 @@
 import time
 import requests
+from litemon.client.errors_buffer import record_error
 import pytest
 from unittest.mock import MagicMock
 from litemon.client import configure_client, stop_client, push_metrics
@@ -25,6 +26,7 @@ def test_client_pushes_metrics_successfully(monkeypatch):
 
     # Record a metric
     record_call("func_ok", success=True, duration=0.1)
+    record_error("func_err", "ZeroDivisionError")
 
     # Start client but don't rely on async thread timing
     configure_client(server_url="http://127.0.0.1:6400", push_interval=5)
@@ -33,7 +35,8 @@ def test_client_pushes_metrics_successfully(monkeypatch):
     push_metrics()
 
     stop_client()
-    assert "func_ok" in pushed_data
+    assert "metrics" in pushed_data and "func_ok" in pushed_data["metrics"]
+    assert "errors" in pushed_data and "func_err" in pushed_data["errors"]
 
 
 def test_client_handles_push_failure(monkeypatch):

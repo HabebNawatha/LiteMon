@@ -53,8 +53,13 @@ def test_metrics_endpoint_returns_valid_json():
     base = "http://127.0.0.1:6500"
 
     # Push metrics
-    metrics = {"test_func": {"calls": 1, "success": 1, "failures": 0, "avg_time": 0.5}}
-    res = requests.post(f"{base}/push", json=metrics)
+    payload = {
+        "metrics": {
+            "test_func": {"calls": 1, "success": 1, "failures": 0, "avg_time": 0.5}
+        },
+        "errors": {},
+    }
+    res = requests.post(f"{base}/push", json=payload)
     assert res.status_code == 200
 
     # Fetch them
@@ -66,14 +71,43 @@ def test_metrics_endpoint_returns_valid_json():
     assert data["test_func"]["calls"] == 1
 
 
+def test_errors_endpoint_returns_valid_json():
+    """Integration test: push metrics and fetch them from /metrics endpoint."""
+    start_test_server(port=6500)
+    base = "http://127.0.0.1:6500"
+
+    # Push metrics
+    payload = {
+        "metrics": {},
+        "errors": {
+            "test_func": [{"error": "ZeroDivisionError", "timestamp": time.time()}]
+        },
+    }
+    res = requests.post(f"{base}/push", json=payload)
+    assert res.status_code == 200
+
+    # Fetch them
+    response = requests.get(f"{base}/errors")
+    assert response.status_code == 200
+
+    data = response.json()
+    assert "test_func" in data
+    assert data["test_func"][0]["error"] == "ZeroDivisionError"
+
+
 def test_multiple_clients_push_concurrently():
     """Simulate 5 clients pushing metrics at the same time."""
     start_test_server(port=6500)
     base = "http://127.0.0.1:6500"
 
     def push_metrics(name):
-        metrics = {name: {"calls": 1, "success": 1, "failures": 0, "avg_time": 0.1}}
-        requests.post(f"{base}/push", json=metrics)
+        payload = {
+            "metrics": {
+                name: {"calls": 1, "success": 1, "failures": 0, "avg_time": 0.1}
+            },
+            "errors": {},
+        }
+        requests.post(f"{base}/push", json=payload)
 
     threads = [
         threading.Thread(target=push_metrics, args=(f"func{i}",)) for i in range(5)
