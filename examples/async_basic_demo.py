@@ -17,6 +17,11 @@ async def bye_async():
     await asyncio.sleep(2)
     return "Goodbye! See you soon."
 
+@monitor
+def divide(num: int):
+    print("dividing by {num}")
+    return 3/num
+
 @app.get("/greet")
 async def greet_route():
     return {"message": await greet_async()}
@@ -24,6 +29,11 @@ async def greet_route():
 @app.get("/bye")
 async def bye_route():
     return {"message": await bye_async()}
+
+@app.get('/divide')
+async def divide_route(num: int):
+    result = divide(num)
+    return {"result:", result}
 
 if __name__ == "__main__":
     import uvicorn

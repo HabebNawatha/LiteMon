@@ -1,5 +1,5 @@
 import time
-from flask import Flask
+from flask import Flask, request
 from litemon import monitor, configure_client
 
 
@@ -20,9 +20,9 @@ def bye():
     return "Goodbye! See you soon."
 
 @monitor
-def divide():
-    print("dividing by 0")
-    return 3/0
+def divide(num: int):
+    print("dividing by {num}")
+    return 3/num
 
 @app.route('/greet', methods=['GET'])
 def greet_route():
@@ -34,7 +34,9 @@ def bye_route():
 
 @app.route('/divide', methods=["GET"])
 def divide_route():
-    return divide()
+    num = int(request.args.get("num"))
+    result = divide(num)
+    return result
 
 if __name__ == '__main__':
     # Start LiteMon client (push metrics every 3s)
